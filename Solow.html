@@ -224,30 +224,80 @@
     <div id="chart" style="display: inline-block;"></div>
     <div id="inputs" style="display: inline-block; vertical-align: top; margin-left: 20px;">
         <div>
-            <label for="alpha">Alpha (\(\alpha\)):</label>
-            <input type="number" id="alpha" min="0" max="1" step="0.01" value="0.3">
-        </div>
-        <div>
+            <label for="alpha">Alpha (α):</label>
+            <input type="range" id="alpha" min="0" max="1" step="0.01" value="0.3">
+            <span id="alphaValue">0.3</span>
+          </div>
+          <div>
             <label for="K">Capital (K):</label>
-            <input type="number" id="K" min="1" max="5" step="1" value="2">
-        </div>
-        <div>
+            <input type="range" id="K" min="1" max="5" step="1" value="2">
+            <span id="KValue">2</span>
+          </div>
+          <div>
             <label for="L">Labor (L):</label>
-            <input type="number" id="L" min="1" max="100" step="1" value="10">
-        </div>
-        <div>
+            <input type="range" id="L" min="1" max="100" step="1" value="10">
+            <span id="LValue">10</span>
+          </div>
+          <div>
             <label for="w">Wage Rate (w):</label>
-            <input type="number" id="w" min="10" max="25" step="0.01" value="15">
-        </div>
-        <div>
+            <input type="range" id="w" min="10" max="25" step="0.01" value="15">
+            <span id="wValue">15</span>
+          </div>
+          <div>
             <label for="s">Savings Rate (s):</label>
-            <input type="number" id="s" min="1" max="100" step="1" value="20">
-        </div>
-        <div>
+            <input type="range" id="s" min="1" max="100" step="1" value="20">
+            <span id="sValue">20</span>
+          </div>
+          <div>
             <label for="n">Population Growth Rate (n):</label>
-            <input type="number" id="n" min="1" max="35" step="1" value="10">
+            <input type="range" id="n" min="1" max="35" step="1" value="10">
+            <span id="nValue">10</span>
         </div>
     </div>
+
+    <script>
+        const alphaSlider = document.getElementById("alpha");
+        const alphaValue = document.getElementById("alphaValue");
+        alphaValue.textContent = alphaSlider.value;
+        alphaSlider.addEventListener("input", () => {
+          alphaValue.textContent = alphaSlider.value;
+        });
+    
+        const KSlider = document.getElementById("K");
+        const KValue = document.getElementById("KValue");
+        KValue.textContent = KSlider.value;
+        KSlider.addEventListener("input", () => {
+          KValue.textContent = KSlider.value;
+        });
+    
+        const LSlider = document.getElementById("L");
+        const LValue = document.getElementById("LValue");
+        LValue.textContent = LSlider.value;
+        LSlider.addEventListener("input", () => {
+          LValue.textContent = LSlider.value;
+        });
+    
+        const wSlider = document.getElementById("w");
+        const wValue = document.getElementById("wValue");
+        wValue.textContent = wSlider.value;
+        wSlider.addEventListener("input", () => {
+          wValue.textContent = wSlider.value;
+        });
+    
+        const sSlider = document.getElementById("s");
+        const sValue = document.getElementById("sValue");
+        sValue.textContent = sSlider.value;
+        sSlider.addEventListener("input", () => {
+          sValue.textContent = sSlider.value;
+        });
+    
+        const nSlider = document.getElementById("n");
+        const nValue = document.getElementById("nValue");
+        nValue.textContent = nSlider.value;
+        nSlider.addEventListener("input", () => {
+          nValue.textContent = nSlider.value;
+        });
+    </script>
 
     <h2
         style="text-align: center; font-family: Times New Roman; font-weight: lighter; margin-top: 100px; margin-bottom: 100px; margin-top: 70px;">
