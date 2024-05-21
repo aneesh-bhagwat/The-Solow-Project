@@ -25,7 +25,7 @@
             font-size: 22px;
         }
 
-        .regp {
+        .reglist {
             text-align: justify;
             margin-left: 35px;
             margin-right: 45px;
@@ -35,13 +35,22 @@
             font-family: 'Times New Roman', Times, serif;
         }
 
+        .regp {
+            text-align: justify;
+            margin-left: 35px;
+            margin-right: 45px;
+            margin-bottom: 35px;
+            line-height: 1.6em;
+            letter-spacing: 0.01em;
+            font-family: 'Times New Roman', Times, serif;
+        }
     </style>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
 </head>
 
-<body style='margin-left: 50px; text-align: justify; font-family: calibri ; font-size: 22px'>
+<body style='margin-left: 50px; text-align: justify; font-family: Times New Roman, Times, serif ; font-size: 22px'>
     <h1 style="text-align: center; font-family: Times New Roman; font-weight:lighter; margin-top: 50px"> Motivation
     </h1>
 
@@ -238,6 +247,28 @@
             <label for="n">Population Growth Rate (n):</label>
             <input type="number" id="n" min="1" max="35" step="1" value="10">
         </div>
+    </div>
+
+    <h2
+        style="text-align: center; font-family: Times New Roman; font-weight: lighter; margin-top: 100px; margin-bottom: 100px; margin-top: 70px;">
+        Equations</h2>
+    <div>
+        <p class='regp'>Cobb-Douglas production function: \(Y = K^{\alpha}L^{1-\alpha}\)</p>
+        <p class='regp'>Output per worker: \(y = \frac{Y}{L}\)</p>
+        <p class='regp'>Capital per worker: \(r = \frac{K}{L}\)</p>
+        <p class='regp'>Capital accumulation equation: \(\dot{k} = sy - (n + \delta)k\)</p>
+        <p class='regp'>Steady-state condition: \(sk^{\alpha} = (n + \delta)k\)</p>
+    </div>
+    <div>
+        <ol>
+            <li class='reglist'><strong style='text-decoration: underline; font-size: 24px;'>Capital deepening</strong>: If the investment per worker curve \( sk^\alpha \) lies above
+                the 45-degree line \( (n + \delta)k \), the economy is experiencing capital deepening, where the capital stock per worker is
+                increasing over time.</li>
+            <li class='reglist'><strong style='text-decoration: underline; font-size: 24px;'>Capital widening</strong>: If the investment per worker curve \( sk^\alpha \) lies below
+                the 45-degree line \( (n + \delta)k \),
+                the economy is experiencing capital widening, where the capital stock per worker is decreasing over
+                time.</li>
+        </ol>
     </div>
 
     <script>
