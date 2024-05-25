@@ -166,13 +166,13 @@
     <p class='regp'>Now, planned investment - given by \(\dot{K}\) - can be obtained by subtracting depreciation from
         savings</p>
 
-    <p class='regp'>\( \dot{K} = s \cdot F(K, L) - D \quad \text{...(1)} \)</p>
+    <p style = 'text-align: center'>\( \dot{K} = s \cdot F(K, L) - D \quad \text{...(2)} \)</p>
 
     <p class='regp'>where depreciation occurs as a certain percentage of capital stock. That is \( D = \delta \cdot K \)
     </p>
     <p class='regp'>We assume the labor grows exponentially at the rate \( n \):</p>
 
-    <p style='text-align: center'>\( L(t) = L_0 \cdot e^{nt} \quad \text{...(2)} \)</p>
+    <p style='text-align: center'>\( L(t) = L_0 \cdot e^{nt} \quad \text{...(3)} \)</p>
 
     <p class='regp'>Substituting in (1), we get</p>
 
@@ -186,7 +186,7 @@
 
     <p style='text-align: center'>\( K = r \cdot L \)</p>
 
-    <p class='regp'>Substituting \( L \) from (2):</p>
+    <p class='regp'>Substituting \( L \) from (3):</p>
 
     <p style='text-align: center'>\( K = r \cdot L_0 e^{nt} \)</p>
 
@@ -198,7 +198,7 @@
 
     <p style='text-align: center'>\( \dot{K} = L_0 e^{nt} \cdot (r \cdot n + \dot{r}) \)</p>
 
-    <p class='regp'>From (1), we have:</p>
+    <p class='regp'>From (2), we have:</p>
 
     <p style='text-align: center'>\( s \cdot F(K, L) - \delta \cdot K = L_0 e^{nt} \cdot (r \cdot n + \dot{r}) \)</p>
     <p class='regp'>Now, we divide both sides by \( L \). Since \( F \) is a homogeneous function of the first degree,
@@ -208,9 +208,9 @@
 
     <p class='regp'>Simplifying, we get:</p>
 
-    <p style='text-align: center'>\( \dot{r} = s \cdot F(r, 1) - r(n + \delta) \quad \text{...(5)} \)</p>
+    <p style='text-align: center'>\( \dot{r} = s \cdot F(r, 1) - r(n + \delta) \quad \text{...(4)} \)</p>
 
-    <p class='regp'>Equation (5) is our final equation. This equation is the equilibrium condition. Upon a closer look,
+    <p class='regp'>Equation (4) is our final equation. This equation is the equilibrium condition. Upon a closer look,
         on the RHS,
         the \( F(r, 1) \) component is the output per labor, and \( s \cdot F(r, 1) \) is the savings per labor. The
         second term \( r n \) is the rate of growth of investment. Equation (5) basically states that the "growth rate
