@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solow Growth Model – Interactive Simulation</title>
+
+    <!-- Font Awesome & D3 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://d3js.org/d3.v7.min.js">
+    </script>
+    <!-- Secure polyfill mirror from Cloudflare -->
+    <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6">
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+
+    <style>
+        /* ───────────────────── RESET & BASE ───────────────────── */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f0f4f8;
+            font-family: 'Georgia', 'Times New Roman', Times, serif;
+            color: #1e2a3a;
+            padding: 30px 20px 60px;
+            line-height: 1.7;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 32px;
+            box-shadow: 0 20px 60px rgba(0, 20, 40, 0.08);
+            padding: 40px 50px 60px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px 8px;
+            }
+            .container {
+                padding: 20px 16px 40px;
+                border-radius: 20px;
+            }
+        }
+
+        /* ───────────────────── TYPOGRAPHY ───────────────────── */
+        h1,
+        h2,
+        h3 {
+            font-family: 'Georgia', 'Times New Roman', Times, serif;
+            font-weight: 400;
+            letter-spacing: 0.02em;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            text-align: center;
+            margin: 0.4em 0 0.3em;
+            color: #0a1a2b;
+            border-bottom: 2px solid #e6edf5;
+            padding-bottom: 0.3em;
+        }
+
+        h1 small {
+            font-size: 1.2rem;
+            font-weight: 300;
+            color: #4a657f;
+            display: block;
+            margin-top: 0.1em;
+        }
+
+        h2 {
+            font-size: 2.2rem;
+            text-align: center;
+            margin: 1.8em 0 0.8em;
+            color: #0a1a2b;
+            position: relative;
+        }
+
+        h2::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 3px;
+            background: #b8c9dc;
+            margin: 0.3em auto 0;
+            border-radius: 4px;
+        }
+
+        h3 {
+            font-size: 1.6rem;
+            margin: 1.4em 0 0.6em;
+            color: #1a3349;
+        }
+
+        .regp,
+        .reglist {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin: 0 0 1.2em 0;
+            max-width: 1000px;
+            color: #1e2a3a;
+        }
+
+        .regp {
+            text-align: justify;
+        }
+
+        .reglist {
+            padding-left: 0.5em;
+        }
+
+        /* ───────────────────── BLOCKQUOTE ───────────────────── */
+        .basic_quote {
+            background: #f7fafc;
+            border-left: 6px solid #2c5f8a;
+            padding: 28px 36px;
+            margin: 2em 0 2.5em;
+            border-radius: 0 16px 16px 0;
+            font-size: 1.25rem;
+            line-height: 1.8;
+            color: #1a2c3f;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+        }
+
+        .basic_quote p {
+            margin: 0;
+        }
+
+        .basic_quote b {
+            font-weight: 600;
+            color: #0a1a2b;
+        }
+
+        /* ───────────────────── HR ───────────────────── */
+        hr {
+            border: none;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #cbd8e6, transparent);
+            margin: 3em auto;
+            max-width: 1000px;
+        }
+
+        /* ───────────────────── LISTS & EQUATIONS ───────────────────── */
+        ol {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding-left: 1.8em;
+        }
+
+        ol li {
+            margin-bottom: 1.2em;
+        }
+
+        .eq-center {
+            text-align: center;
+            font-size: 1.3rem;
+            margin: 1.2em 0;
+            padding: 0.5em 0;
+            background: #f7fafc;
+            border-radius: 12px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            font-family: 'Cambria', 'Times New Roman', serif;
+        }
+
+        /* ───────────────────── SIMULATION LAYOUT ───────────────────── */
+        .simulation-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 30px;
+            margin: 40px auto 30px;
+            background: #f8fbfe;
+            border-radius: 28px;
+            padding: 30px 25px;
+            box-shadow: 0 8px 30px rgba(0, 20, 40, 0.06);
+        }
+
+        #chart {
+            flex: 0 0 auto;
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            padding: 8px;
+        }
+
+        #chart svg {
+            display: block;
+            width: 800px;
+            height: 600px;
+        }
+
+        @media (max-width: 900px) {
+            #chart svg {
+                width: 100% !important;
+                height: auto !important;
+                aspect-ratio: 800 / 600;
+            }
+            .simulation-wrapper {
+                flex-direction: column;
+                align-items: center;
+                padding: 20px 12px;
+            }
+        }
+
+        /* ───────────────────── CONTROLS PANEL ───────────────────── */
+        .controls-panel {
+            flex: 0 0 260px;
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 24px 22px 28px;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.04);
+            border: 1px solid #e9eef3;
+            backdrop-filter: blur(2px);
+        }
+
+        .controls-panel h3 {
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            font-weight: 500;
+            font-size: 1.2rem;
+            text-align: center;
+            color: #0a1a2b;
+            margin: 0 0 20px 0;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e6edf5;
+            letter-spacing: 0.04em;
+        }
+
+        .controls-panel h3 i {
+            margin-right: 8px;
+            color: #2c5f8a;
+        }
+
+        .control-group {
+            margin-bottom: 16px;
+        }
+
+        .control-group label {
+            display: flex;
+            justify-content: space-between;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: #1e3a5a;
+            margin-bottom: 2px;
+            letter-spacing: 0.02em;
+        }
+
+        .control-group label span {
+            font-weight: 600;
+            color: #1a4b7a;
+            background: #eef4fa;
+            padding: 0 8px;
+            border-radius: 20px;
+            min-width: 32px;
+            text-align: center;
+        }
+
+        /* Custom range sliders */
+        .control-group input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 5px;
+            border-radius: 8px;
+            background: linear-gradient(to right, #c0d4e8, #2c5f8a);
+            outline: none;
+            transition: opacity 0.2s;
+            margin: 4px 0 2px;
+            cursor: pointer;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #1a4b7a;
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(0, 20, 40, 0.2);
+            transition: 0.1s;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.12);
+            background: #0f3b5f;
+        }
+
+        .control-group input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #1a4b7a;
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(0, 20, 40, 0.2);
+            cursor: pointer;
+        }
+
+        /* ───────────────────── STATUS BAR ───────────────────── */
+        .status-bar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 16px 32px;
+            margin: 20px auto 10px;
+            padding: 16px 28px;
+            background: #ffffff;
+            border-radius: 60px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+            border: 1px solid #e9eef3;
+            max-width: 1100px;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            font-size: 0.95rem;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+            white-space: nowrap;
+        }
+
+        .status-item .label {
+            color: #4a657f;
+            font-weight: 400;
+        }
+
+        .status-item .value {
+            font-weight: 600;
+            color: #0a1a2b;
+            min-width: 48px;
+            text-align: right;
+        }
+
+        .status-item .value.positive {
+            color: #1e7e34;
+        }
+        .status-item .value.negative {
+            color: #b22222;
+        }
+        .status-item .value.steady {
+            color: #b8860b;
+        }
+
+        @media (max-width: 700px) {
+            .status-bar {
+                flex-direction: column;
+                align-items: center;
+                border-radius: 28px;
+                gap: 8px;
+                padding: 18px 16px;
+                font-size: 0.85rem;
+            }
+            .status-item {
+                white-space: normal;
+            }
+        }
+
+        /* ───────────────────── EQUATIONS GRID ───────────────────── */
+        .equations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px 20px;
+            max-width: 1100px;
+            margin: 20px auto 30px;
+        }
+
+        .equations-grid .eq-item {
+            background: #f2f6fb;
+            padding: 10px 16px;
+            border-radius: 30px;
+            text-align: center;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            font-size: 0.95rem;
+            color: #0a1a2b;
+            border: 1px solid #e0e9f2;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+            transition: 0.1s;
+        }
+
+        .equations-grid .eq-item:hover {
+            background: #e8eff7;
+            border-color: #b8c9dc;
+        }
+
+        /* ───────────────────── D3 CHART OVERRIDES ───────────────────── */
+        .axis text {
+            font-size: 13px;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            fill: #2a4058;
+        }
+
+        .axis path,
+        .axis line {
+            stroke: #b0c4d8;
+            shape-rendering: crispEdges;
+        }
+
+        .line.prodcurve {
+            stroke: #1f6da9;
+            stroke-width: 2.6;
+            fill: none;
+        }
+        .line.investcurve {
+            stroke: #2a8e4a;
+            stroke-width: 2.6;
+            fill: none;
+        }
+        .line.steadystate {
+            stroke: #c42d2d;
+            stroke-width: 2.6;
+            fill: none;
+        }
+
+        .currentK {
+            stroke: #1a1a2e;
+            stroke-width: 1.8;
+            stroke-dasharray: 7, 6;
+            opacity: 0.7;
+        }
+
+        .dot-current {
+            fill: #0a1a2b;
+            stroke: white;
+            stroke-width: 2;
+        }
+
+        .chart-annotation {
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            text-anchor: middle;
+        }
+        .chart-annotation.positive {
+            fill: #1e7e34;
+        }
+        .chart-annotation.negative {
+            fill: #b22222;
+        }
+        .chart-annotation.steady {
+            fill: #b8860b;
+        }
+
+        .legend-text {
+            font-size: 12px;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            fill: #1e2a3a;
+        }
+
+        /* ───────────────────── RESPONSIVE TWEAKS ───────────────────── */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+            h2 {
+                font-size: 1.6rem;
+            }
+            .basic_quote {
+                padding: 18px 20px;
+                font-size: 1rem;
+            }
+            .controls-panel {
+                flex: 1 1 100%;
+                max-width: 380px;
+            }
+            .eq-center {
+                font-size: 1rem;
+                padding: 0.4em 0.2em;
+            }
+            .regp,
+            .reglist {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+
+        <!-- ====== TITLE ====== -->
+        <h1>Motivation <small>Solow Growth Model · 1956</small></h1>
+
+        <!-- ====== BLOCKQUOTE ====== -->
+        <blockquote class="basic_quote"
+        cite="Solow, R. M. (1956). A contribution to the theory of economic growth. The quarterly journal of economics, 70(1), 65-94.">
+        <p>
+            "All theory depends on assumptions which are not quite true. That is what makes it theory. The art of
+            successful theorizing is to make the inevitable simplifying assumptions in such a way that the final
+            results are not very sensitive. A 'crucial' assumption is one on which the conclusions do depend
+            sensitively, and it is important that crucial assumptions be reasonably realistic. When the results of a
+            theory seem to flow specifically from a special crucial assumption, then if the assumption is dubious,
+            the results are suspect."
+            <br><br>
+            <b>— Solow, 1956</b>
+        </p>
+    </blockquote>
+
+    <!-- ====== INTRO ====== -->
+    <p class="regp">
+        These are the words of Robert M. Solow from his paper published in 1956, which introduced the Solow growth
+        model. In this context, Solow refers to the "Harrod-Domar" growth model, which was primarily founded on the
+        "crucial" assumption of "Fixed Proportions". The main aim behind developing the Solow growth model was to
+        create a growth model akin to the Harrod-Domar model but without assuming "Fixed Proportions".
+    </p>
+    <p class="regp">
+        Solow achieves this by employing a slightly different framework while retaining all the assumptions of the
+        Harrod-Domar model except for fixed proportions. He proposes that a single composite commodity (akin to
+        domestic output) is produced by two inputs — <i>Labor</i> and <i>Capital</i> — under standard neoclassical
+        conditions.
+    </p>
+
+    <hr>
+
+    <!-- ====== COMPONENTS ====== -->
+    <h2>Components of the Model</h2>
+    <p class="regp">Here, we discuss the various components or variables that are used in the development of the Solow model.</p>
+
+    <ol>
+        <li>
+            <p class="regp" style="margin-bottom:0.4em;">
+                <b style="text-decoration:underline; font-size:1.2rem;">Output</b> — This can be thought of as the
+                collection of output produced by the nation. We give the <b><i>rate</i></b> of its production by
+                <b style="font-family:'Segoe UI',sans-serif;">\( Y(t) \)</b> — which denotes the amount of output
+                produced in a unit of time. This can also be thought of as the GDP. On the other hand production
+                possibilities are represented by the function
+            </p>
+            <div class="eq-center">\( Y = F(K, L) \quad \text{...(1)} \)</div>
+            <p class="regp">
+                Here, we assume the production function to be of the Cobb-Douglas type. It is increasing, concave and
+                exhibits constant returns to scale. This implies that the Marginal Product of both Labor and Capital is
+                decreasing — high level of production can be achieved only by increasing both inputs.
+            </p>
+        </li>
+
+        <li>
+            <p class="regp">
+                <b style="text-decoration:underline; font-size:1.2rem;">Depreciation</b> — We denote the rate of
+                depreciation by \( \delta \). Another approach would be to subsume depreciation in the output itself
+                (which is how Solow does in his 1956 paper), but the former is more lucid. The rate of depreciation is
+                constant.
+            </p>
+        </li>
+
+        <li>
+            <p class="regp">
+                <b style="text-decoration:underline; font-size:1.2rem;">Capital Stock</b> — The Capital Stock, denoted
+                by \( K(t) \), can be thought of as the accumulation of the composite commodity over time — the rate of
+                which is given by \( \dot{K} \). <br><br>
+                \( \dot{K} \) can be thought of as the rate of investment. Here, we make the assumption of full
+                employment of capital stock. That is, at any point of time, the pre-existing stock of capital is
+                inelastically supplied.
+            </p>
+        </li>
+    </ol>
+
+    <hr>
+
+    <!-- ====== DERIVATION ====== -->
+    <h2>Derivation of the Equilibrium Condition</h2>
+    <p class="regp">This is the derivation of the equilibrium equation.</p>
+
+    <p class="regp">We assume that a constant part of the output produced is saved and subsequently invested. That is,</p>
+    <div class="eq-center">\( S = s \cdot Y \)</div>
+    <p class="regp">We know that in neoclassical theory, planned savings is equal to planned investment.</p>
+    <p class="regp">Now, planned investment — given by \( \dot{K} \) — can be obtained by subtracting depreciation from savings:</p>
+    <div class="eq-center">\( \dot{K} = s \cdot F(K, L) - D \quad \text{...(2)} \)</div>
+    <p class="regp">where depreciation occurs as a certain percentage of capital stock. That is \( D = \delta \cdot K \).</p>
+    <p class="regp">We assume the labor grows exponentially at the rate \( n \):</p>
+    <div class="eq-center">\( L(t) = L_0 \cdot e^{nt} \quad \text{...(3)} \)</div>
+    <p class="regp">Substituting in (1), we get</p>
+    <div class="eq-center">\( \dot{K} = s \cdot F(K, L_0 e^{nt}) - \delta \cdot K \)</div>
+    <p class="regp">Now, we define a new variable \( r \), where \( r = \frac{K}{L} \) is the capital-labor ratio, or
+        the capital per labor. We try to express (3) in terms of one variable \( r \).</p>
+    <div class="eq-center">\( r = \frac{K}{L} \)</div>
+    <div class="eq-center">\( K = r \cdot L \)</div>
+    <p class="regp">Substituting \( L \) from (3):</p>
+    <div class="eq-center">\( K = r \cdot L_0 e^{nt} \)</div>
+    <p class="regp">Differentiating \( K \) with respect to \( t \), we get:</p>
+    <div class="eq-center">\( \dot{K} = r \cdot n \cdot L_0 e^{nt} + \dot{r} \cdot L_0 e^{nt} \)</div>
+    <p class="regp">Factoring out \( L_0 e^{nt} \):</p>
+    <div class="eq-center">\( \dot{K} = L_0 e^{nt} \cdot (r \cdot n + \dot{r}) \)</div>
+    <p class="regp">From (2), we have:</p>
+    <div class="eq-center">\( s \cdot F(K, L) - \delta \cdot K = L_0 e^{nt} \cdot (r \cdot n + \dot{r}) \)</div>
+    <p class="regp">Now, we divide both sides by \( L \). Since \( F \) is a homogeneous function of the first degree, we get</p>
+    <div class="eq-center">\( s \cdot F(r, 1) - \delta \cdot K = r(n + \dot{r}) \)</div>
+    <p class="regp">Simplifying, we get:</p>
+    <div class="eq-center">\( \dot{r} = s \cdot F(r, 1) - r(n + \delta) \quad \text{...(4)} \)</div>
+    <p class="regp">
+        Equation (4) is our final equation. This equation is the equilibrium condition. Upon a closer look, on the RHS,
+        the \( F(r, 1) \) component is the output per labor, and \( s \cdot F(r, 1) \) is the savings per labor. The
+        second term \( r n \) is the rate of growth of investment. Equation (4) basically states that the "growth rate
+        in savings must be equal to the growth rate of investment in order to achieve equilibrium."
+    </p>
+
+    <hr>
+
+    <!-- ====== SIMULATION TITLE ====== -->
+    <h2 style="margin-top:2.2em;">Basic Solow Model</h2>
+
+    <!-- ====== SIMULATION LAYOUT ====== -->
+    <div class="simulation-wrapper">
+        <!-- Chart -->
+        <div id="chart"></div>
+
+        <!-- Controls -->
+        <div class="controls-panel">
+            <h3><i class="fas fa-sliders-h"></i> Parameters</h3>
+
+            <div class="control-group">
+                <label>Alpha (α) <span id="alphaValue">0.30</span></label>
+                <input type="range" id="alpha" min="0.05" max="0.95" step="0.01" value="0.30">
+            </div>
+
+            <div class="control-group">
+                <label>Capital (K) <span id="KValue">2</span></label>
+                <input type="range" id="K" min="1" max="5" step="0.5" value="2">
+            </div>
+
+            <div class="control-group">
+                <label>Labor (L) <span id="LValue">10</span></label>
+                <input type="range" id="L" min="1" max="100" step="1" value="10">
+            </div>
+
+            <div class="control-group">
+                <label>Savings rate (s) <span id="sValue">20</span>%</label>
+                <input type="range" id="s" min="1" max="50" step="1" value="20">
+            </div>
+
+            <div class="control-group">
+                <label>Pop. growth (n) <span id="nValue">10</span>%</label>
+                <input type="range" id="n" min="0.5" max="35" step="0.5" value="10">
+            </div>
+
+            <div class="control-group">
+                <label>Depreciation (δ) <span id="deltaValue">0.05</span></label>
+                <input type="range" id="delta" min="0.01" max="0.20" step="0.005" value="0.05">
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== STATUS BAR ====== -->
+    <div class="status-bar" id="statusBar">
+        <div class="status-item"><span class="label">k =</span> <span class="value" id="statK">—</span></div>
+        <div class="status-item"><span class="label">y =</span> <span class="value" id="statY">—</span></div>
+        <div class="status-item"><span class="label">k̇ =</span> <span class="value" id="statKdot">—</span></div>
+        <div class="status-item"><span class="label">k* =</span> <span class="value" id="statKstar">—</span></div>
+        <div class="status-item"><span class="label">Status:</span> <span class="value" id="statStatus" style="font-weight:600;">—</span></div>
+    </div>
+
+    <!-- ====== EQUATIONS ====== -->
+    <h2 style="margin-top:2.8em;">Equations</h2>
+    <div class="equations-grid">
+        <div class="eq-item">\( Y = K^{\alpha} L^{1-\alpha} \)</div>
+        <div class="eq-item">\( y = Y / L = k^{\alpha} \)</div>
+        <div class="eq-item">\( k = K / L \)</div>
+        <div class="eq-item">\( \dot{k} = s \cdot k^{\alpha} - (n + \delta) k \)</div>
+        <div class="eq-item">\( k^* = \left( \frac{s}{n + \delta} \right)^{1/(1-\alpha)} \)</div>
+    </div>
+
+    <ol style="max-width:1100px; margin:10px auto 20px; padding-left:1.8em;">
+        <li class="reglist">
+            <strong style="text-decoration:underline; font-size:1.2rem;">Capital deepening</strong>:
+            If the investment per worker curve \( s k^{\alpha} \) lies above the break-even line \( (n + \delta) k \),
+            the economy is experiencing capital deepening — the capital stock per worker is increasing over time.
+        </li>
+        <li class="reglist">
+            <strong style="text-decoration:underline; font-size:1.2rem;">Capital widening</strong>:
+            If the investment per worker curve \( s k^{\alpha} \) lies below the break-even line \( (n + \delta) k \),
+            the economy is experiencing capital widening — the capital stock per worker is decreasing over time.
+        </li>
+    </ol>
+
+    <!-- ==================================================================== -->
+    <!-- D3 SCRIPT (unchanged logic, only visual enhancements)               -->
+    <!-- ==================================================================== -->
+    <script>
+        (function() {
+            'use strict';
+
+            const margin = { top: 40, right: 40, bottom: 55, left: 55 };
+            const width = 800 - margin.left - margin.right;
+            const height = 600 - margin.top - margin.bottom;
+            const transitionMs = 800;
+
+            const svg = d3.select("#chart")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+            const xScale = d3.scaleLinear().range([0, width]);
+            const yScale = d3.scaleLinear().range([height, 0]);
+
+            const xAxis = d3.axisBottom(xScale).ticks(8);
+            const yAxis = d3.axisLeft(yScale).ticks(8);
+
+            const xAxisG = svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", `translate(0, ${height})`);
+
+            const yAxisG = svg.append("g")
+                .attr("class", "y axis");
+
+            svg.append("text")
+                .attr("x", width / 2)
+                .attr("y", height + margin.bottom - 8)
+                .style("text-anchor", "middle")
+                .style("font-size", "15px")
+                .style("font-family", "'Segoe UI', Roboto, system-ui, sans-serif")
+                .style("fill", "#1e2a3a")
+                .text("Capital per worker (k)");
+
+            svg.append("text")
+                .attr("x", -height / 2)
+                .attr("y", -margin.left + 16)
+                .attr("transform", "rotate(-90)")
+                .style("text-anchor", "middle")
+                .style("font-size", "15px")
+                .style("font-family", "'Segoe UI', Roboto, system-ui, sans-serif")
+                .style("fill", "#1e2a3a")
+                .text("Output / investment per worker");
+
+            const prodLine = d3.line()
+                .x(d => xScale(d.k))
+                .y(d => yScale(d.y));
+
+            const invLine = d3.line()
+                .x(d => xScale(d.k))
+                .y(d => yScale(d.inv));
+
+            const breakLine = d3.line()
+                .x(d => xScale(d.k))
+                .y(d => yScale(d.breakEven));
+
+            svg.append("path")
+                .attr("class", "line prodcurve")
+                .attr("id", "prodPath");
+
+            svg.append("path")
+                .attr("class", "line investcurve")
+                .attr("id", "invPath");
+
+            svg.append("path")
+                .attr("class", "line steadystate")
+                .attr("id", "breakPath");
+
+            const currentKLine = svg.append("line")
+                .attr("class", "currentK")
+                .attr("y1", 0)
+                .attr("y2", height);
+
+            const currentDot = svg.append("circle")
+                .attr("class", "dot-current")
+                .attr("r", 6);
+
+            const annotation = svg.append("text")
+                .attr("class", "chart-annotation")
+                .attr("x", width * 0.78)
+                .attr("y", height * 0.92);
+
+            const legend = svg.append("g")
+                .attr("transform", `translate(${width - 200}, 16)`);
+
+            legend.append("rect")
+                .attr("width", 190)
+                .attr("height", 98)
+                .attr("rx", 8)
+                .attr("ry", 8)
+                .attr("fill", "white")
+                .attr("fill-opacity", 0.88)
+                .attr("stroke", "#d0dce8")
+                .attr("stroke-width", 0.5);
+
+            const legendItems = [
+                { color: "#1f6da9", label: "Output: \(k^{\\alpha}\)" },
+                { color: "#2a8e4a", label: "Investment: \(s k^{\\alpha}\)" },
+                { color: "#c42d2d", label: "Break-even: \((n+\\delta)k\)" }
+            ];
+
+            legendItems.forEach((item, i) => {
+                const yPos = 16 + i * 28;
+                legend.append("line")
+                    .attr("x1", 12)
+                    .attr("y1", yPos)
+                    .attr("x2", 44)
+                    .attr("y2", yPos)
+                    .attr("stroke", item.color)
+                    .attr("stroke-width", 2.6);
+
+                legend.append("text")
+                    .attr("x", 52)
+                    .attr("y", yPos + 5)
+                    .attr("class", "legend-text")
+                    .style("font-size", "12px")
+                    .text(item.label);
+            });
+
+            function updateChart() {
+                const alpha = parseFloat(d3.select("#alpha").property("value"));
+                const K0 = parseFloat(d3.select("#K").property("value"));
+                const L0 = parseFloat(d3.select("#L").property("value"));
+                const sRaw = parseFloat(d3.select("#s").property("value"));
+                const nRaw = parseFloat(d3.select("#n").property("value"));
+                const delta = parseFloat(d3.select("#delta").property("value"));
+
+                const s = sRaw / 100;
+                const n = nRaw / 100;
+
+                const Y0 = Math.pow(K0, alpha) * Math.pow(L0, 1 - alpha);
+                const y0 = Y0 / L0;
+                const k0 = K0 / L0;
+                const kDot = s * Math.pow(k0, alpha) - (n + delta) * k0;
+
+                const kStar = Math.pow(s / (n + delta), 1 / (1 - alpha));
+                const yStar = Math.pow(kStar, alpha);
+
+                const kMax = Math.max(k0 * 2.8, kStar * 2.2, 2.5);
+                const kRange = d3.range(0.005, Math.max(kMax, 5.5), 0.015);
+                const data = kRange.map(k => {
+                    const yVal = Math.pow(k, alpha);
+                    return {
+                        k: k,
+                        y: yVal,
+                        inv: s * yVal,
+                        breakEven: (n + delta) * k
+                    };
+                });
+
+                const maxY = d3.max(data, d => Math.max(d.y, d.inv, d.breakEven)) * 1.15;
+                xScale.domain([0, d3.max(data, d => d.k) * 1.02]);
+                yScale.domain([0, Math.max(maxY, 0.5)]);
+
+                xAxisG.transition().duration(transitionMs).call(xAxis);
+                yAxisG.transition().duration(transitionMs).call(yAxis);
+
+                svg.select("#prodPath")
+                    .datum(data)
+                    .transition()
+                    .duration(transitionMs)
+                    .attr("d", prodLine);
+
+                svg.select("#invPath")
+                    .datum(data)
+                    .transition()
+                    .duration(transitionMs)
+                    .attr("d", invLine);
+
+                svg.select("#breakPath")
+                    .datum(data)
+                    .transition()
+                    .duration(transitionMs)
+                    .attr("d", breakLine);
+
+                const kX = xScale(k0);
+                currentKLine
+                    .transition()
+                    .duration(transitionMs)
+                    .attr("x1", kX)
+                    .attr("x2", kX);
+
+                const yAtK = Math.pow(k0, alpha);
+                currentDot
+                    .transition()
+                    .duration(transitionMs)
+                    .attr("cx", xScale(k0))
+                    .attr("cy", yScale(yAtK));
+
+                let statusText, statusClass;
+                const eps = 1e-6;
+                if (Math.abs(kDot) < eps) {
+                    statusText = "⚖️ Steady state";
+                    statusClass = "steady";
+                } else if (kDot > 0) {
+                    statusText = "📈 Capital deepening";
+                    statusClass = "positive";
+                } else {
+                    statusText = "📉 Capital widening";
+                    statusClass = "negative";
+                }
+
+                annotation
+                    .text(statusText)
+                    .attr("class", `chart-annotation ${statusClass}`)
+                    .attr("x", width * 0.78)
+                    .attr("y", height * 0.92);
+
+                document.getElementById("statK").textContent = k0.toFixed(4);
+                document.getElementById("statY").textContent = yAtK.toFixed(4);
+                const kDotEl = document.getElementById("statKdot");
+                kDotEl.textContent = kDot.toFixed(4);
+                kDotEl.className = "value" +
+                    (Math.abs(kDot) < eps ? " steady" :
+                        (kDot > 0 ? " positive" : " negative"));
+
+                document.getElementById("statKstar").textContent = isFinite(kStar) ? kStar.toFixed(4) : "∞";
+                const statusEl = document.getElementById("statStatus");
+                statusEl.textContent = statusText.replace(/[📈📉⚖️]/g, "").trim();
+                statusEl.className = "value " + statusClass;
+            }
+
+            const sliderIds = ["alpha", "K", "L", "s", "n", "delta"];
+            const displayIds = ["alphaValue", "KValue", "LValue", "sValue", "nValue", "deltaValue"];
+
+            sliderIds.forEach((id, i) => {
+                const slider = document.getElementById(id);
+                const display = document.getElementById(displayIds[i]);
+                if (!slider || !display) return;
+
+                const updateDisplay = () => {
+                    const val = parseFloat(slider.value);
+                    display.textContent = (id === "delta") ? val.toFixed(3) : val.toFixed(2);
+                };
+
+                slider.addEventListener("input", () => {
+                    updateDisplay();
+                    updateChart();
+                });
+
+                updateDisplay();
+            });
+
+            updateChart();
+            d3.selectAll("input[type=range]").on("change", updateChart);
+
+            window.__solowUpdate = updateChart;
+        })();
+    </script>
+
+</div>
+</body>
+</html>
